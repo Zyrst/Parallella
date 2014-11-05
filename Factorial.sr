@@ -1,0 +1,23 @@
+resource factorial()
+	procedure fact( x:int; y:int) returns r: int
+		if x = y ->
+			r:= x
+		
+		[] x < y ->
+			var m:int
+			var a:int
+			var b:int
+			
+			m := (x+y)/2
+			write("m", m)
+			
+			a:= fact(x,m)
+			b:=fact(m+1,y)
+			r:= a * b
+		fi
+	end
+	
+	var n: int
+	writes("Enter a positive integer:"); read(n)
+	write("The factorial of", n, "is", fact(1,n))
+end factorial
