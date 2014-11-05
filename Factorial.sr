@@ -10,9 +10,10 @@ resource factorial()
 			
 			m := (x+y)/2
 			write("m", m)
-			
+			co
 			a:= fact(x,m)
-			b:=fact(m+1,y)
+			// b:=fact(m+1,y)
+			oc
 			r:= a * b
 		fi
 	end
