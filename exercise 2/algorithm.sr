@@ -1,0 +1,25 @@
+var flag[2]:bool:=([2]false)
+var turnt:int:=1
+process M1::
+	do true ->
+		flag[1] := true
+		turn := 1
+		do flag[2] and turn = 1 ->
+			skip
+		od
+	# critical section
+	flag[1] := false
+	# non-critical section
+	od
+end
+process M2::
+	do true ->
+		flag[2]:= true
+		turn := 2
+		do flag[1] and turn = 2 ->
+			skip
+		od
+	# critical section
+	flag[2]:= false
+	# non-critical section
+	od
