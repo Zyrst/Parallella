@@ -1,23 +1,76 @@
 resource UBprob()
-const m : int 	  		#number of men
-const w : int     		#number of women	
-var blocked[m + w] : int	#number of blocked processes
-var queue[m + w + 1] : int
+	# Övning 1. Fungerar. Icke fair
+	
+	const m : int := 5  		#number of men
+	const w : int := 15   		#number of women	
+	var blocked[m + w] : int	#number of blocked processes
 
-process Man(i := 1 to m)
-  do true - > 
-                      # enter bathroom
-                      # spend some time
-                      # leave bathroom
-                      # spend some time
-  od
+	var dm: int := 0
+	var dw: int := 0			#Men and women waiting.
 
-process Woman(j := 1 to w)
-  do true - > 
-                      # enter bathroom
-                      # spend some time
-                      # leave bathroom
-                      # spend some time
-  od
+	var nm: int := 0
+	var nw: int := 0			#Men and women in bathroom. 
+	var queue[m + w + 1] : int	#Ready queue
 
+	#Semaphores
+	sem mutex  := 1
+	sem Men_Guard := 0
+	sem Women_Guard := 1
+
+	procedure signal()
+		if(nw = 0 and dm > 0) ->
+			dm--
+			V(Men_Guard)
+		[](nm = 0 and nw = 0 and dw > 0) ->
+			dw--
+			V(Women_Guard)
+		[] (nw > 0 or dm = 0) and (nm > 0 or nw > 0 or dw = 0) ->
+			V(mutex)
+		fi
+	end   
+	
+	
+	
+	process Man(i := 1 to m)
+		do true -> 
+			P(mutex)
+			if(nw > 0) ->
+				dm++
+				V(mutex)
+				P(Men_Guard) 
+			fi
+			nm++
+			signal() #Stuff to be made.
+			nap(50)
+			write("Man is in bathroom. No. " , nm)
+			P(mutex)
+			nm--
+			nap(50)
+			signal() #Stuff again?			
+		od
+	end 
+
+	process Woman(j := 1 to w)
+		do true -> 
+			P(mutex)
+			if(nm > 0) ->
+				dw++
+				V(mutex)
+				P(Women_Guard) 
+			fi	
+			nw++
+		signal()
+		nap(50)
+		# Toabesök
+		write("Woman in bathroom. No" , nw)
+		P(mutex)
+		nw--
+		nap(50)
+		signal()
+		
+		# Tvättar händerna.
+	od
+	end 
+
+	
 end UBprob
