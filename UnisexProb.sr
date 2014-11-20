@@ -1,0 +1,23 @@
+resource UBprob()
+const m : int 	  		#number of men
+const w : int     		#number of women	
+var blocked[m + w] : int	#number of blocked processes
+var queue[m + w + 1] : int
+
+process Man(i := 1 to m)
+  do true - > 
+                      # enter bathroom
+                      # spend some time
+                      # leave bathroom
+                      # spend some time
+  od
+
+process Woman(j := 1 to w)
+  do true - > 
+                      # enter bathroom
+                      # spend some time
+                      # leave bathroom
+                      # spend some time
+  od
+
+end UBprob
