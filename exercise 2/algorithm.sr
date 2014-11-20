@@ -1,5 +1,5 @@
-var flag[2]:bool:=([2]false)
-var turnt:int:=1
+var flag[2] : bool := ([2]false)
+var turnt : int := 1
 process M1::
 	do true ->
 		flag[1] := true
@@ -23,3 +23,4 @@ process M2::
 	flag[2]:= false
 	# non-critical section
 	od
+end
