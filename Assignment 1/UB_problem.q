@@ -3,7 +3,7 @@
 /*
 
 */
-M1.Waiting --> M1.inCS
+M1.Wait --> M1.inCS
 
 /*
 
@@ -13,4 +13,4 @@ E<> (M1.inCS && W1.inCS)
 /*
 
 */
-E<> deadlock
+A[] !deadlock
