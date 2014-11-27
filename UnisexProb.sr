@@ -21,10 +21,10 @@ resource UBprob()
 		if(nw = 0 and dm > 0) ->
 			dm--
 			V(Men_Guard)
-		[](nm = 0 and nw = 0 and dw > 0) ->
+		[](nm = 0 and dw > 0) ->
 			dw--
 			V(Women_Guard)
-		[] (nw > 0 or dm = 0) and (nm > 0 or nw > 0 or dw = 0) ->
+		[] (nw > 0 or dm = 0) and (nm > 0 or dw = 0) ->
 			V(mutex)
 		fi
 	end   
@@ -58,7 +58,7 @@ resource UBprob()
 				V(mutex)
 				P(Women_Guard) 
 			fi	
-			nw++
+		nw++
 		signal()
 		nap(50)
 		# Toabesök
