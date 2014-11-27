@@ -1,8 +1,8 @@
 resource UBprob()
-	# Övning 1. Fungerar. Icke fair
+	# Övning 2. 
 	
-	const m : int := 7  		#number of men
-	const w : int := 7  		#number of women	
+	const m : int := 10  		#number of men
+	const w : int := 10  		#number of women	
 	var blocked[m + w] : int	#number of blocked processes
 
 	var dm: int := 0
@@ -39,6 +39,12 @@ resource UBprob()
 				V(mutex)
 				P(Men_Guard) 
 			fi
+			do (nm >= 4) ->
+				V(mutex)	#Need to mutex to compare or two men can enter bathroom
+
+				nap(125)
+				P(mutex)
+			od
 			nm++
 			signal() #Stuff to be made.
 			nap(int(random(50,500)))
@@ -46,7 +52,7 @@ resource UBprob()
 			P(mutex)
 			nm--
 			signal() #Stuff again?		
-			nap(int(random(50,500)))			
+			nap(int(random(100,1000)))			
 		od
 	end 
 
@@ -57,7 +63,13 @@ resource UBprob()
 				dw++
 				V(mutex)
 				P(Women_Guard) 
-			fi	
+			fi
+				do (nw >= 4) ->
+					signal()
+				
+					nap(125)
+					P(mutex)	
+				od
 		nw++
 		signal()
 		nap(int(random(50,500)))
@@ -66,7 +78,7 @@ resource UBprob()
 		P(mutex)
 		nw--
 		signal()
-		nap(int(random(50,500)))
+		nap(int(random(100,1000)))
 		
 		# Tvättar händerna.
 	od

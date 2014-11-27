@@ -3,12 +3,17 @@
 /*
 
 */
+E<> (nw > 0) && (nm > 0)
+
+/*
+
+*/
 M1.Wait --> M1.inCS
 
 /*
 
 */
-E<> (M1.inCS && W1.inCS)
+A[] !(M1.inCS && W1.inCS) && !(M2.inCS && W2.inCS)
 
 /*
 
