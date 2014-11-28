@@ -39,12 +39,14 @@ resource UBprob()
 				V(mutex)
 				P(Men_Guard) 
 			fi
+			
+			#If number of men is higher than 4 then nap (waiting)
 			do (nm >= 4) ->
 				V(mutex)	#Need to mutex to compare or two men can enter bathroom
-
 				nap(125)
-				P(mutex)
+				P(mutex)	#Grab mutex again so we can test number of men again
 			od
+			
 			nm++
 			signal() #Stuff to be made.
 			nap(int(random(50,500)))
@@ -64,12 +66,13 @@ resource UBprob()
 				V(mutex)
 				P(Women_Guard) 
 			fi
+			
 				do (nw >= 4) ->
-					signal()
-				
+					V(mutex)
 					nap(125)
 					P(mutex)	
 				od
+				
 		nw++
 		signal()
 		nap(int(random(50,500)))
