@@ -1,5 +1,6 @@
 resource UBprob()
 	# Övning 2. 
+	#TODO fixa så det inte är varannan kille/tjej
 	
 	const m : int := 10  		#number of men
 	const w : int := 10  		#number of women	
@@ -11,7 +12,14 @@ resource UBprob()
 	var nm: int := 0
 	var nw: int := 0			#Men and women in bathroom. 
 	var queue[m + w + 1] : int	#Ready queue
-
+	
+	var id : int := 0			# GLOBAL PROCESS ID, DO NOT TOUCH
+	var femQueue[w]: int		# female queue
+	var maleQueue[m] : int 		# male queue
+	
+	var currentMQueue : int := 0
+	var currentFQueue : int := 0
+	
 	#Semaphores
 	sem mutex  := 1
 	sem Men_Guard := 0
@@ -20,6 +28,34 @@ resource UBprob()
 	var ncm: int := 0			# Completed men
 	var ncw: int := 0			# Completed women
 
+	procedure shrinkQueue( var p[m] : int )returns newArray[m] : int
+		var temp : int := p[1]
+		fa  i := 1 to m ->
+			if(i < 10) ->
+				newArray[i] := p[i+1];
+			[] (i = 10) ->
+				newArray[i] := temp
+			fi
+		af		
+		currentMQueue--
+	end
+	
+	procedure addToQueue(  var pid : int; var isMale : bool )
+		if(isMale = true) ->
+			maleQueue[currentMQueue + 1] := pid
+			currentMQueue++
+			
+		[](isMale = false) ->
+			femQueue[currentFQueue + 1] := pid
+			currentFQueue++
+			
+		fi
+	end	
+	
+	procedure createID() returns pid : int
+		pid := id++
+	end
+	
 	procedure signal()
 		if(nw = 0 and dm > 0) ->
 			dm--
@@ -34,10 +70,18 @@ resource UBprob()
 	
 	
 	process Man(i := 1 to m)
-		do true -> 
+		
+		var q : bool := true
+		P(mutex)
+		var mPID : int := createID()
+		write ("Created id MANBABY", mPID)
+		addToQueue( mPID, q)
+		V(mutex)
+		do true -> 			
 			P(mutex)
+			#write("Took mutex")
 			if(nw > 0) ->
-				dm++
+				dm++				
 				V(mutex)
 				P(Men_Guard) 
 			fi
@@ -55,24 +99,40 @@ resource UBprob()
 				nap(125)
 				P(mutex)
 			od
-
-			nm++
-			signal() #Stuff to be made.
-			nap(int(random(50,500)))
-			write("Man is in bathroom. No. " , nm)
-			P(mutex)
-			ncm++
-			nm--
-			signal() #Stuff again?		
-			nap(int(random(100,1000)))			
+			# If it's this process turn to run.
+			if(mPID = maleQueue[1] and nm <= 4 ) ->
+				#write("First in male queueueueu", maleQueue[1])
+				nm++
+				signal() #Stuff to be made.
+				nap(int(random(50,500)))
+				write("Man is in bathroom. No. " , nm, " pid " , mPID)
+				#write(mPID, "is about to take second mutex")
+				P(mutex)
+				ncm++
+				nm--
+				maleQueue := shrinkQueue(maleQueue)
+				signal() #Stuff again?		
+				nap(int(random(100,1000)))
+			
+			[] else ->
+				signal()
+			fi
+			
 		od
 	end 
 
 	process Woman(j := 1 to w)
+	
+		var q : bool := false
+		P(mutex)
+		var mPID : int := createID()
+		write("Created id m'lday", mPID)
+		addToQueue( mPID, q)
+		V(mutex)
 		do true -> 
 			P(mutex)
 			if(nm > 0) ->
-				dw++
+				dw++				
 				V(mutex)
 				P(Women_Guard) 
 			fi
@@ -89,20 +149,25 @@ resource UBprob()
 				nap(125)
 				P(mutex)	
 			od
-		nw++
-		signal()
-		nap(int(random(50,500)))
-		# Toabesök
+		# Checks if it's this process turn to run. 	
+		if(mPID = femQueue[1] and nw <= 4) ->
+			#write("First in female queue", femQueue[1])
+			nw++
+			signal()
+			nap(int(random(50,500)))
+			# Toabesök
 		
-		write("Woman in bathroom. No" , nw)
-		P(mutex)
+			write("Woman in bathroom. No" , nw, " pid " , mPID)
+			P(mutex)
 
-		ncw++
-		nw--
-
-		signal()
-		nap(int(random(100,1000)))
-		
+			ncw++
+			nw--
+			femQueue := shrinkQueue(femQueue)
+			signal()
+			nap(int(random(100,1000)))
+		[] else ->
+			signal()
+		fi
 		# Tvättar händerna.
 	od
 	end 
