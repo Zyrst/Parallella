@@ -17,9 +17,6 @@ resource UBprob()
 	sem Men_Guard := 0
 	sem Women_Guard := 0
 
-	var ncm: int := 0		# Number of completed men 
-	var nvw: int := 0		# Number of completed women
-
 	procedure signal()
 		if(nw = 0 and dm > 0) ->
 			dm--
@@ -70,25 +67,24 @@ resource UBprob()
 				P(Women_Guard) 
 			fi
 			
-			do (ncw >= ncm + 4) ->
-				V(mutex)
-				nap(125)
-				P(mutex)	
-			od
+				do (nw >= 4) ->
+					V(mutex)
+					nap(125)
+					P(mutex)	
+				od
 				
-			nw++
-			signal()
-			nap(int(random(50,500)))
-			# Toabesök
-			write("Woman in bathroom. No" , nw)
-			P(mutex)
-			nw--
-
-			ncw++ 			#Adds to the completed list
-			signal()
-			nap(int(random(100,1000)))		
-			# Tvättar händerna.
-		od
+		nw++
+		signal()
+		nap(int(random(50,500)))
+		# Toabesök
+		write("Woman in bathroom. No" , nw)
+		P(mutex)
+		nw--
+		signal()
+		nap(int(random(100,1000)))
+		
+		# Tvättar händerna.
+	od
 	end 
 
 	
