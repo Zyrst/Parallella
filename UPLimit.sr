@@ -1,9 +1,9 @@
 resource UBprob()
-	# Övning 2. 
+	# Uppgift 2. 
 	
-	const m : int := 10  		#number of men
-	const w : int := 10  		#number of women	
-	var blocked[m + w] : int	#number of blocked processes
+	const m : int := 10  		#Number of men
+	const w : int := 10  		#Number of women	
+	var blocked[m + w] : int	#Number of blocked processes
 
 	var dm: int := 0
 	var dw: int := 0			#Men and women waiting.
@@ -73,18 +73,17 @@ resource UBprob()
 					P(mutex)	
 				od
 				
-		nw++
-		signal()
-		nap(int(random(50,500)))
-		# Toabesök
-		write("Woman in bathroom. No" , nw)
-		P(mutex)
-		nw--
-		signal()
-		nap(int(random(100,1000)))
+			nw++
+			signal()
+			nap(int(random(50,500)))
 		
-		# Tvättar händerna.
-	od
+			write("Woman in bathroom. No" , nw)
+			P(mutex)
+			nw--
+			signal()
+			nap(int(random(100,1000)))
+		
+		od
 	end 
 
 	

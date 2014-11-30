@@ -1,9 +1,9 @@
 resource UBprob()
-	# Övning 1. Fungerar. Icke fair
+	# Uppgift 1. Fungerar. Icke fair
 	
-	const m : int := 7  		#number of men
-	const w : int := 7  		#number of women	
-	var blocked[m + w] : int	#number of blocked processes
+	const m : int := 7  		#Number of men
+	const w : int := 7  		#Number of women	
+	var blocked[m + w] : int	#Number of blocked processes
 
 	var dm: int := 0
 	var dw: int := 0			#Men and women waiting.
@@ -57,19 +57,18 @@ resource UBprob()
 				dw++
 				V(mutex)
 				P(Women_Guard) 
-			fi	
-		nw++
-		signal()
-		nap(int(random(50,500)))
-		# Toabesök
-		write("Woman in bathroom. No" , nw)
-		P(mutex)
-		nw--
-		signal()
-		nap(int(random(50,500)))
-		
-		# Tvättar händerna.
-	od
+				fi	
+			nw++
+			signal()
+			nap(int(random(50,500)))
+			
+			write("Woman in bathroom. No" , nw)
+			P(mutex)
+			nw--
+			signal()
+			nap(int(random(50,500)))
+			
+		od
 	end 
 
 	

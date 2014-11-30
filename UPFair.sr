@@ -1,10 +1,9 @@
 resource UBprob()
-	# Övning 2. 
-	#TODO fixa så det inte är varannan kille/tjej
+	# Uppgift 3. 
 	
-	const m : int := 10  		#number of men
-	const w : int := 10  		#number of women	
-	var blocked[m + w] : int	#number of blocked processes
+	const m : int := 10  		#Number of men
+	const w : int := 10  		#Number of women	
+	var blocked[m + w] : int	#Number of blocked processes
 
 	var dm: int := 0
 	var dw: int := 0			#Men and women waiting.
@@ -14,8 +13,8 @@ resource UBprob()
 	var queue[m + w + 1] : int	#Ready queue
 	
 	var id : int := 0			# GLOBAL PROCESS ID, DO NOT TOUCH
-	var femQueue[w]: int		# female queue
-	var maleQueue[m] : int 		# male queue
+	var femQueue[w]: int		# Female queue
+	var maleQueue[m] : int 		# Male queue
 	
 	var currentMQueue : int := 0
 	var currentFQueue : int := 0
@@ -28,7 +27,7 @@ resource UBprob()
 	var ncm: int := 0			# Completed men
 	var ncw: int := 0			# Completed women
 	
-	var menTurn: bool := true	#Ful haxx
+	var menTurn: bool := true	# Whose turn it is (male or female)
 
 	procedure shrinkQueue( var p[m] : int; var isMale : bool )returns newArray[m] : int
 		var temp : int := p[1]
@@ -109,18 +108,23 @@ resource UBprob()
 			
 			
 			# If it's this process turn to run.
+			#If menTurn is true and you are in the first 4 in queue and less than 4 men 
 			fa x := 1 to 4 ->
 			if(mPID = maleQueue[x] and nm <= 4 and menTurn = true) ->
+			
 				nm++
 				signal() #Stuff to be made.
+				
 				nap(int(random(50,500)))
 				write("Man is in bathroom. No. " , nm, " pid " , mPID)
+				
 				P(mutex)
 				ncm++
 				nm--
 				
 				maleQueue := shrinkQueue(maleQueue,q)
-				signal() #Stuff again?		
+				signal() #Stuff again?	
+				
 				write("Man goes out and left", nm)
 				nap(int(random(100,1000)))
 			
@@ -164,6 +168,7 @@ resource UBprob()
 			
 			fa x := 1 to 4 ->
 			# Checks if it's this process turn to run. 	
+			#If menTurn is false, if first 4 and women less than 4
 			if(mPID = femQueue[x] and nw <= 4 and menTurn = false) ->
 			
 				nw++
@@ -178,6 +183,7 @@ resource UBprob()
 				
 				femQueue := shrinkQueue(femQueue,q)
 				signal()
+				
 				write("Female goes out and no left", nw)
 				nap(int(random(100,1000)))
 			[] else ->
