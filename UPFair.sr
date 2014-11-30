@@ -80,7 +80,7 @@ resource UBprob()
 		var q : bool := true
 		P(mutex)
 		var mPID : int := createID()
-		write ("Created id MANBABY", mPID)
+		write ("Created id Man", mPID)
 		addToQueue( mPID, q)
 		V(mutex)
 		do true -> 			
@@ -140,7 +140,7 @@ resource UBprob()
 		var q : bool := false
 		P(mutex)
 		var mPID : int := createID()
-		write("Created id m'lday", mPID)
+		write("Created id Female", mPID)
 		addToQueue( mPID, q)
 		V(mutex)
 		do true -> 
