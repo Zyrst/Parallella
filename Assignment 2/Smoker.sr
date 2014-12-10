@@ -1,59 +1,110 @@
+resource Smokes()
 #Assignment 2.A
 
 #Likt producer / consumer
 #Man kan skicka med flera olika kanaler
 
 #Channels
-op in1(int), in2(int), in3(int)
+op in1(int)
+op in2(int)
+op in3(int)
+op in4(bool)
 
 
-process Agent::
-  var tobacco	: int   #amount of tobacco on table
-  var paper 	: int   #amount of paper on table	
-  var matches 	: int   #amount of matches on table 	
-
-  do true - > 
-  
-  #Kanske guard att se om det finns något på borden (typ kanalen är blockad)
-	fa i := 1 to 2 ->
-	var x : int := int(random(1,3))
-		if(x = 1) ->
-			tobacco++
-		[] (x = 2)->
-			paper++
-		[] (x = 3)->
-			matches++
-		fi
-	af
-	
-		if(tobacco > 0)->
-			send in1(1)
-			tobacco--
-		[] (paper > 0)->
-			send in2(1)
-			paper--
-		[]	(matches > 0)->
-			send in3(1)
-			matches--
-		fi
-                      # randomly select two items
-                      # place items on table 
-                      # wait until the contents are picked up 
-  od
-
-process Smoker(i := 1 to 3)
-  do true - > 
-		var tobacco : int
-		var paper 	: int
-		var matches : int
+	process Agent
+	  var tobacco	: int := 0   	#amount of tobacco on table
+	  var paper 	: int := 0  	#amount of paper on table	
+	  var matches 	: int := 0   	#amount of matches on table 	
+	  var isEmpty 	: bool:= true 	#Table is empty
 		
-		if(tobacco = 1 and paper = 1 and matches = 1)
-			#Blaze it
-			tobacco--
-			paper--
-			matches--
-		fi
-                      # wait until the items you need are on the table
-                      # pick up the items
-                      # smoke
-  od
+	  do true -> 
+	  
+	  #do(tobacco = 0 and matches = 0 and paper = 0) ->
+	  do(isEmpty = true ) ->
+		var x : int := int(random(3)+1)
+			if(x = 1) ->
+				tobacco++
+				matches++
+				write("Sending tobacco and matches")
+				send in1(1)
+			[] (x = 2)->
+				paper++
+				tobacco++
+				write("Sending paper and tobacco")
+				send in2(1)
+			[] (x = 3)->
+				matches++
+				paper++
+				write("Sending matches and paper")
+				send in3(1)
+			fi
+			isEmpty := false
+		od
+		
+		do (isEmpty = false) ->
+			receive in4(isEmpty)
+			tobacco := 0
+			paper := 0
+			matches := 0
+		od
+
+						  # randomly select two items
+						  # place items on table 
+						  # wait until the contents are picked up 
+	  od
+	 end
+
+	process Smoker(i := 1 to 3)
+	  do true -> 
+			var tobacco : int := 0
+			var paper 	: int := 0
+			var matches : int := 0
+			
+			if(i = 1) ->
+				var j : int := 0
+				receive in3(j)
+				if(j = 1) ->
+					tobacco := 1
+					matches := 1
+					paper 	:= 1
+				fi
+				
+			[](i = 2) ->
+				var j : int := 0
+				receive in1(j)
+				if(j = 1) -> 
+					tobacco := 1
+					matches := 1
+					paper 	:= 1
+				fi
+				
+			[](i = 3) ->
+				var j : int := 0
+				receive in2(j)
+				if(j = 1) -> 
+					tobacco := 1
+					matches := 1
+					paper 	:= 1
+				fi
+			fi
+			
+			if(tobacco = 1 and paper = 1 and matches = 1) ->
+				#Blaze it
+				tobacco--
+				paper--
+				matches--
+				send in4(true)
+				write (i , "is smoking")
+				#nap(int(random(100,500)))
+			fi
+			
+			
+			
+			#Check om vilket item man har och då titta på specifika kanaler 
+						  # wait until the items you need are on the table
+						  # pick up the items
+						  # smoke
+	  od
+	  end
+  
+  end Smokes
