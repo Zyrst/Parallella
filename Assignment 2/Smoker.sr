@@ -48,9 +48,6 @@ op in4(bool)
 			matches := 0
 		od
 
-						  # randomly select two items
-						  # place items on table 
-						  # wait until the contents are picked up 
 	  od
 	 end
 
@@ -95,15 +92,7 @@ op in4(bool)
 				matches--
 				send in4(true)
 				write (i , "is smoking")
-				#nap(int(random(100,500)))
 			fi
-			
-			
-			
-			#Check om vilket item man har och då titta på specifika kanaler 
-						  # wait until the items you need are on the table
-						  # pick up the items
-						  # smoke
 	  od
 	  end
   
