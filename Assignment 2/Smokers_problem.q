@@ -18,4 +18,4 @@ E<> A.PlaceItems && S1.PickingUp
 /*
 Not deadlock should be a global invariant.
 */
-A[] ! deadlock
+A[] !deadlock
