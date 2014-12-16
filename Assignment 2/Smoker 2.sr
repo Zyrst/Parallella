@@ -1,0 +1,87 @@
+resource Smokes()
+#Assignment 2.A
+
+#Likt producer / consumer
+#Man kan skicka med flera olika kanaler
+
+#Channels
+op in1(int, int,int)
+op in4(bool)
+
+var m : int := 15
+
+	process Agent
+	  var tobacco	: int := 0   	#amount of tobacco on table
+	  var paper 	: int := 0  	#amount of paper on table	
+	  var matches 	: int := 0   	#amount of matches on table 	
+	  var isEmpty 	: bool:= true 	#Table is empty
+		
+	  do true -> 
+	  do(isEmpty = true ) ->
+		var x : int := int(random(3)+1)
+			
+			if(x = 1)->
+				tobacco++
+				matches++
+			[] (x = 2)->
+				tobacco++
+				paper++
+			[]	(x = 3)->
+				paper++
+				matches++
+			fi
+			
+			if(tobacco >= 1, paper >=1, matches >=1)
+				send in1(1,1,1)
+				write("Sending cigarette")
+				isEmpty := false
+			fi
+			
+		od
+		
+		do (isEmpty = false) ->
+			receive in4(isEmpty)
+			tobacco := 0
+			paper := 0
+			matches := 0
+		od
+
+	  od
+	end
+
+	process Smoker(i := 1 to m)
+	var isEmpty : bool := true
+	  do true -> 
+			var tobacco : int := 0
+			var paper 	: int := 0
+			var matches : int := 0
+			if(z = true)
+				var j : int := 0
+				receive in1(j)
+				z++
+			fi
+			
+			#var x : int := int(random(m)+1)
+			var j : int := 0
+			receive in1(j)
+
+				if (i = j) ->
+					tobacco := 1
+					matches := 1
+					paper 	:= 1
+				fi
+			
+			
+			
+			if(tobacco = 1 and paper = 1 and matches = 1) ->
+				#Blaze it
+				tobacco--
+				paper--
+				matches--
+				send in4(true)
+				write (i , "is smoking")
+			fi
+	  od
+	end
+  
+ end Smokes
