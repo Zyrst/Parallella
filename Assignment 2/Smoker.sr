@@ -1,9 +1,6 @@
 resource Smokes()
 #Assignment 2.A
 
-#Likt producer / consumer
-#Man kan skicka med flera olika kanaler
-
 #Channels
 op in1(int)
 op in2(int)
@@ -12,35 +9,33 @@ op in4(bool)
 
 
 	process Agent
-	  var tobacco	: int := 0   	#amount of tobacco on table
-	  var paper 	: int := 0  	#amount of paper on table	
-	  var matches 	: int := 0   	#amount of matches on table 	
-	  var isEmpty 	: bool:= true 	#Table is empty
+		var tobacco	: int := 0   	#amount of tobacco on table
+		var paper 	: int := 0  	#amount of paper on table	
+		var matches 	: int := 0   	#amount of matches on table 	
+		var isEmpty 	: bool:= true 	#Table is empty
 		
-	  do true -> 
-	  
-	  #do(tobacco = 0 and matches = 0 and paper = 0) ->
-	  do(isEmpty = true ) ->
-		var x : int := int(random(3)+1)
-			if(x = 1) ->
-				tobacco++
-				matches++
-				write("Sending tobacco and matches")
-				send in1(1)
-			[] (x = 2)->
-				paper++
-				tobacco++
-				write("Sending paper and tobacco")
-				send in2(1)
-			[] (x = 3)->
-				matches++
-				paper++
-				write("Sending matches and paper")
-				send in3(1)
-			fi
+	do true -> 
+		do(isEmpty = true ) ->
+			var x : int := int(random(3)+1)
+				if(x = 1) ->
+					tobacco++
+					matches++
+					write("Sending tobacco and matches")
+					send in1(1)
+				[] (x = 2)->
+					paper++
+					tobacco++
+					write("Sending paper and tobacco")
+					send in2(1)
+				[] (x = 3)->
+					matches++
+					paper++
+					write("Sending matches and paper")
+					send in3(1)
+				fi
 			isEmpty := false
 		od
-		
+			
 		do (isEmpty = false) ->
 			receive in4(isEmpty)
 			tobacco := 0
@@ -48,8 +43,8 @@ op in4(bool)
 			matches := 0
 		od
 
-	  od
-	 end
+	od
+	end
 
 	process Smoker(i := 1 to 3)
 	  do true -> 
@@ -58,28 +53,31 @@ op in4(bool)
 			var matches : int := 0
 			
 			if(i = 1) ->
+				#Person 1
 				var j : int := 0
 				receive in3(j)
 				if(j = 1) ->
+					paper 	:= 1	#My constant ingredient
 					tobacco := 1
 					matches := 1
-					paper 	:= 1
 				fi
 				
 			[](i = 2) ->
+				#Person 2
 				var j : int := 0
 				receive in1(j)
 				if(j = 1) -> 
+					matches := 1	#My constant ingredient
 					tobacco := 1
-					matches := 1
 					paper 	:= 1
 				fi
 				
 			[](i = 3) ->
+				#Person 3
 				var j : int := 0
 				receive in2(j)
 				if(j = 1) -> 
-					tobacco := 1
+					tobacco := 1	#My constant ingredient
 					matches := 1
 					paper 	:= 1
 				fi
@@ -94,6 +92,6 @@ op in4(bool)
 				write (i , "is smoking")
 			fi
 	  od
-	  end
+	 end
   
-  end Smokes
+ end Smokes

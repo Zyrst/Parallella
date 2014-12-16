@@ -1,11 +1,12 @@
 resource Smokes()
-#Assignment 2.A
+#Assignment 2.B
 
 #Likt producer / consumer
 #Man kan skicka med flera olika kanaler
 
 #Channels
-op in1(int, int,int)
+op in1(int)	#tobacco,matches,paper
+op in2(int)
 op in4(bool)
 
 var m : int := 15
@@ -23,56 +24,75 @@ var m : int := 15
 			if(x = 1)->
 				tobacco++
 				matches++
+				send in1(1)
+				write("Sent Tobacco and Matches")
 			[] (x = 2)->
 				tobacco++
 				paper++
+				send in1(2)
+				write("Sent Tobacco and Paper")
 			[]	(x = 3)->
 				paper++
 				matches++
-			fi
-			
-			if(tobacco >= 1, paper >=1, matches >=1)
-				send in1(1,1,1)
-				write("Sending cigarette")
-				isEmpty := false
+				send in1(3)
+				write("Sent Paper and Matches")
 			fi
 			
 		od
 		
 		do (isEmpty = false) ->
-			receive in4(isEmpty)
-			tobacco := 0
-			paper := 0
-			matches := 0
+			#receive in4(isEmpty)
+			var a := int 
+			receive in2(a)
+			if (a = 1) ->
+				tobacco--
+				matches-- 
+			[] (a = 2) ->
+				tobacco--
+				paper--
+			[] (a = 3) ->
+				paper--
+				matches--
+			fi
+			isEmpty = true 
+			#tobacco := 0
+			#paper := 0
+			#matches := 0
 		od
 
 	  od
 	end
 
 	process Smoker(i := 1 to m)
-	var isEmpty : bool := true
 	  do true -> 
 			var tobacco : int := 0
 			var paper 	: int := 0
 			var matches : int := 0
-			if(z = true)
-				var j : int := 0
-				receive in1(j)
-				z++
+			
+			var x : int
+			receive in1(x)
+			#if person takes it 
+			#Return 1, 2 or 3 , look at x value in agent
+			#Not we want 
+			
+			if(x = 1 and paper >= 1) ->
+				tobacco++
+				matches++
+				
+			[] (x = 2 and matches >= 1) ->
+				tobacco++
+				paper++
+			[] (x = 3 and tobacco >= 1) ->
+				paper++
+				matches++
+			[] ->
+				send in1(x)
 			fi
 			
+			
+			
 			#var x : int := int(random(m)+1)
-			var j : int := 0
-			receive in1(j)
 
-				if (i = j) ->
-					tobacco := 1
-					matches := 1
-					paper 	:= 1
-				fi
-			
-			
-			
 			if(tobacco = 1 and paper = 1 and matches = 1) ->
 				#Blaze it
 				tobacco--
