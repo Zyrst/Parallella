@@ -6,10 +6,9 @@ resource Smokes()
 
 #Channels
 op in1(int)	#tobacco,matches,paper
-op in2(int)
-op in4(bool)
+op in2(int) #Return channel which was used
 
-var m : int := 15
+var m : int := 3
 
 	process Agent
 	  var tobacco	: int := 0   	#amount of tobacco on table
@@ -37,24 +36,24 @@ var m : int := 15
 				send in1(3)
 				write("Sent Paper and Matches")
 			fi
-			
+			isEmpty := false
 		od
 		
 		do (isEmpty = false) ->
 			#receive in4(isEmpty)
-			var a := int 
+			var a : int 
 			receive in2(a)
 			if (a = 1) ->
-				tobacco--
-				matches-- 
+				tobacco := tobacco - 1
+				matches := matches - 1
 			[] (a = 2) ->
-				tobacco--
-				paper--
+				tobacco := tobacco - 1
+				paper := paper - 1
 			[] (a = 3) ->
-				paper--
-				matches--
+				paper := paper - 1
+				matches := matches -1
 			fi
-			isEmpty = true 
+			isEmpty := true 
 			#tobacco := 0
 			#paper := 0
 			#matches := 0
@@ -68,6 +67,15 @@ var m : int := 15
 			var tobacco : int := 0
 			var paper 	: int := 0
 			var matches : int := 0
+			
+			var z : int := i % 3
+			if( z = 1)->
+				tobacco++
+			[] (z = 2) ->
+				paper++
+			[] (z= 0) ->
+				matches++
+			fi
 			
 			var x : int
 			receive in1(x)
@@ -85,7 +93,7 @@ var m : int := 15
 			[] (x = 3 and tobacco >= 1) ->
 				paper++
 				matches++
-			[] ->
+			[] else ->
 				send in1(x)
 			fi
 			
@@ -95,10 +103,10 @@ var m : int := 15
 
 			if(tobacco = 1 and paper = 1 and matches = 1) ->
 				#Blaze it
-				tobacco--
-				paper--
-				matches--
-				send in4(true)
+				tobacco := tobacco - 1
+				paper := paper - 1
+				matches := matches - 1
+				send in2(x)
 				write (i , "is smoking")
 			fi
 	  od
