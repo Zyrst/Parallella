@@ -1,7 +1,7 @@
 resource UBprob()
 	# Uppgift 3. 
 	
-	const m : int := 10  		#Number of men
+	const m : int := 0  		#Number of men
 	const w : int := 10  		#Number of women	
 	var blocked[m + w] : int	#Number of blocked processes
 
@@ -13,8 +13,8 @@ resource UBprob()
 	var queue[m + w + 1] : int	#Ready queue
 	
 	var id : int := 0			# GLOBAL PROCESS ID, DO NOT TOUCH
-	var femQueue[w]: int		# Female queue
-	var maleQueue[m] : int 		# Male queue
+	var femQueue[w+m]: int		# Female queue
+	var maleQueue[w+m] : int 		# Male queue
 	
 	var currentMQueue : int := 0
 	var currentFQueue : int := 0
@@ -28,8 +28,9 @@ resource UBprob()
 	var ncw: int := 0			# Completed women
 	
 	var menTurn: bool := true	# Whose turn it is (male or female)
-
-	procedure shrinkQueue( var p[m] : int; var isMale : bool )returns newArray[m] : int
+	
+	#This dun goofs it
+	procedure shrinkQueue( var p[w+m] : int; var isMale : bool )returns newArray[w+m] : int
 		var temp : int := p[1]
 		fa  i := 1 to m ->
 			if(i < 10) ->
@@ -76,7 +77,9 @@ resource UBprob()
 	
 	
 	process Man(i := 1 to m)
-		
+		if(w <= 0)->
+			menTurn := true
+		fi
 		var q : bool := true
 		P(mutex)
 		var mPID : int := createID()
@@ -99,7 +102,7 @@ resource UBprob()
 				P(mutex)	#Grab mutex again so we can test number of men again
 			od
 			
-			do (ncm >= ncw + 4) ->
+			do (ncm >= ncw + 4 and w >= 1) ->
 				menTurn := false
 				V(mutex)
 				nap(125)
@@ -136,7 +139,10 @@ resource UBprob()
 	end 
 
 	process Woman(j := 1 to w)
-	
+		
+		if(m <= 0)->
+			menTurn := false
+		fi
 		var q : bool := false
 		P(mutex)
 		var mPID : int := createID()
@@ -159,7 +165,7 @@ resource UBprob()
 				P(mutex)	
 			od
 			
-			do(ncw >= ncm + 4) ->
+			do(ncw >= ncm + 4 and m >= 1) ->
 				menTurn := true
 				V(mutex)
 				nap(125)

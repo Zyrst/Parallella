@@ -6,7 +6,7 @@ resource Smokes()
 
 #Channels
 op in1(int)	#tobacco,matches,paper
-op in2(int) #Return channel which was used
+op in2(int) #Return channel
 
 var m : int := 15
 
@@ -54,9 +54,6 @@ var m : int := 15
 				matches := matches -1
 			fi
 			isEmpty := true 
-			#tobacco := 0
-			#paper := 0
-			#matches := 0
 		od
 
 	  od
@@ -97,10 +94,6 @@ var m : int := 15
 				send in1(x)
 			fi
 			
-			
-			
-			#var x : int := int(random(m)+1)
-
 			if(tobacco = 1 and paper = 1 and matches = 1) ->
 				#Blaze it
 				tobacco := tobacco - 1
