@@ -5,42 +5,54 @@ resource Smokes()
 #Man kan skicka med flera olika kanaler
 
 #Channels
-op in1(int)	#tobacco,matches,paper
-op in2(int) #Return channel which was used
+op in1(int)	 #tobacco,matches,paper
+op in2(int)	 #Return channel which was used
+op in3(int)	 #ID channel
 
 var m : int := 15
 
 	process Agent
-	  var tobacco	: int := 0   	#amount of tobacco on table
-	  var paper 	: int := 0  	#amount of paper on table	
+	  var tobacco		: int := 0   	#amount of tobacco on table
+	  var paper 		: int := 0  		#amount of paper on table	
 	  var matches 	: int := 0   	#amount of matches on table 	
-	  var isEmpty 	: bool:= true 	#Table is empty
-		
+	  var isEmpty 	: bool:= true #Table is empty
+	  
+	  var x : int := 0
+	  var id: int := 1
+	  
 	  do true -> 
 	  do(isEmpty = true ) ->
-		var x : int := int(random(3)+1)
-			
-			if(x = 1)->
+		x++
+		if(x > 3) ->
+			x := 1
+		fi
+		
+		if(id > m) ->
+			id := 1
+		fi
+		
+			if(id % 3 = 2)->
 				tobacco++
 				matches++
 				send in1(1)
-				write("Sent Tobacco and Matches")
-			[] (x = 2)->
+				write("Sent Tobacco and Matches to id " ,id)
+			[] (id % 3 = 0)->
 				tobacco++
 				paper++
 				send in1(2)
-				write("Sent Tobacco and Paper")
-			[]	(x = 3)->
+				write("Sent Tobacco and Paper to id " ,id)
+			[]	(id % 3 = 1)->
 				paper++
 				matches++
 				send in1(3)
-				write("Sent Paper and Matches")
+				write("Sent Paper and Matches to id " ,id)
 			fi
+			send in3(id)
+			id++
 			isEmpty := false
 		od
 		
 		do (isEmpty = false) ->
-			#receive in4(isEmpty)
 			var a : int 
 			receive in2(a)
 			if (a = 1) ->
@@ -54,9 +66,9 @@ var m : int := 15
 				matches := matches -1
 			fi
 			isEmpty := true 
-			#tobacco := 0
-			#paper := 0
-			#matches := 0
+			tobacco := 0
+			paper := 0
+			matches := 0
 		od
 
 	  od
@@ -79,22 +91,25 @@ var m : int := 15
 			
 			var x : int
 			receive in1(x)
+			var id: int 
+			receive in3(id)
 			#if person takes it 
 			#Return 1, 2 or 3 , look at x value in agent
 			#Not we want 
 			
-			if(x = 1 and paper >= 1) ->
+			if(x = 1 and paper >= 1 and id = i) ->
 				tobacco++
 				matches++
 				
-			[] (x = 2 and matches >= 1) ->
+			[] (x = 2 and matches >= 1 and id = i) ->
 				tobacco++
 				paper++
-			[] (x = 3 and tobacco >= 1) ->
+			[] (x = 3 and tobacco >= 1 and id = i) ->
 				paper++
 				matches++
 			[] else ->
 				send in1(x)
+				send in3(id)
 			fi
 			
 			
