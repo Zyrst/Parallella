@@ -5,72 +5,59 @@ resource Smokes()
 #Man kan skicka med flera olika kanaler
 
 #Channels
-op in1(int)	 #tobacco,matches,paper
+op in0(int)	 #Agent req channel.
 op in2(int)	 #Return channel which was used
-op in3(int)	 #ID channel
+
 
 var m : int := 15
 
+optype t(int)
+op channelArray[m] : t 			# Channel array
+
 	process Agent
-	  var tobacco		: int := 0   	#amount of tobacco on table
-	  var paper 		: int := 0  		#amount of paper on table	
-	  var matches 	: int := 0   	#amount of matches on table 	
-	  var isEmpty 	: bool:= true #Table is empty
+	  var tobacco	: int := 0   	 # amount of tobacco on table
+	  var paper 		: int := 0  	 # amount of paper on table	
+	  var matches 	: int := 0   	 # amount of matches on table 	
+	  var isEmpty 	: bool:= true # Table is empty
 	  
 	  var x : int := 0
-	  var id: int := 1
+	
 	  
 	  do true -> 
 	  do(isEmpty = true ) ->
-		x++
-		if(x > 3) ->
-			x := 1
-		fi
-		
-		if(id > m) ->
-			id := 1
-		fi
+		var id: int := 0
+		# Recives order from a smoker that wants to smoke.
+		receive in0(id)
 		
 			if(id % 3 = 2)->
 				tobacco++
 				matches++
-				send in1(1)
 				write("Sent Tobacco and Matches to id " ,id)
 			[] (id % 3 = 0)->
 				tobacco++
 				paper++
-				send in1(2)
 				write("Sent Tobacco and Paper to id " ,id)
 			[]	(id % 3 = 1)->
 				paper++
 				matches++
-				send in1(3)
 				write("Sent Paper and Matches to id " ,id)
 			fi
-			send in3(id)
-			id++
+			# Tells the smoker that there are ingredients on the table.
+			send channelArray[id](1)
 			isEmpty := false
+			
 		od
 		
 		do (isEmpty = false) ->
 			var a : int 
 			receive in2(a)
 			if (a = 1) ->
-				tobacco := tobacco - 1
-				matches := matches - 1
-			[] (a = 2) ->
-				tobacco := tobacco - 1
-				paper := paper - 1
-			[] (a = 3) ->
-				paper := paper - 1
-				matches := matches -1
-			fi
-			isEmpty := true 
-			tobacco := 0
-			paper := 0
-			matches := 0
+				isEmpty := true 
+				tobacco := 0
+				paper := 0
+				matches := 0
+			fi		
 		od
-
 	  od
 	end
 
@@ -89,40 +76,39 @@ var m : int := 15
 				matches++
 			fi
 			
-			var x : int
-			receive in1(x)
-			var id: int 
-			receive in3(id)
-			#if person takes it 
-			#Return 1, 2 or 3 , look at x value in agent
-			#Not we want 
+			#I want to smoke.
+			send in0(i)
+			write(i, "wanted to smoke")
+			var response : int := 0
+			# Wait for agent to place ingredients
+			do (response = 0)->
+				receive channelArray[i](response)
+			od
 			
-			if(x = 1 and paper >= 1 and id = i) ->
+
+			# I get stuff.
+			if(paper = 1) ->
 				tobacco++
 				matches++
 				
-			[] (x = 2 and matches >= 1 and id = i) ->
+			[] (matches = 1) ->
 				tobacco++
 				paper++
-			[] (x = 3 and tobacco >= 1 and id = i) ->
+				
+			[] (tobacco = 1) ->
 				paper++
 				matches++
-			[] else ->
-				send in1(x)
-				send in3(id)
 			fi
-			
-			
-			
-			#var x : int := int(random(m)+1)
+		
 
 			if(tobacco = 1 and paper = 1 and matches = 1) ->
 				#Blaze it
+				write (i , "is smoking")
 				tobacco := tobacco - 1
 				paper := paper - 1
 				matches := matches - 1
-				send in2(x)
-				write (i , "is smoking")
+				send in2(1)
+				
 			fi
 	  od
 	end
