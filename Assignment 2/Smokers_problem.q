@@ -16,6 +16,11 @@ This is a check for mutual exclusion between the agent and a smoker.
 E<> A.PlaceItems && S1.PickingUp
 
 /*
+Invariant.
+*/
+A[] (!S1.PickingUp && !S2.PickingUp) || (!S3.PickingUp && !S1.PickingUp) || (!S2.PickingUp && !S3.PickingUp)
+
+/*
 Not deadlock should be a global invariant.
 */
 A[] !deadlock
