@@ -1,8 +1,8 @@
 resource UBprob()
 	# Uppgift 3. 
 	
-	const m : int := 0  		#Number of men
-	const w : int := 10  		#Number of women	
+	const m : int := 6  		#Number of men
+	const w : int := 5  		#Number of women	
 	var blocked[m + w] : int	#Number of blocked processes
 
 	var dm: int := 0
@@ -10,11 +10,10 @@ resource UBprob()
 
 	var nm: int := 0
 	var nw: int := 0			#Men and women in bathroom. 
-	var queue[m + w + 1] : int	#Ready queue
 	
 	var id : int := 0			# GLOBAL PROCESS ID, DO NOT TOUCH
-	var femQueue[w+m]: int		# Female queue
-	var maleQueue[w+m] : int 		# Male queue
+	var femQueue[w]: int		# Female queue
+	var maleQueue[m] : int 		# Male queue
 	
 	var currentMQueue : int := 0
 	var currentFQueue : int := 0
@@ -29,21 +28,26 @@ resource UBprob()
 	
 	var menTurn: bool := true	# Whose turn it is (male or female)
 	
-	#This dun goofs it
-	procedure shrinkQueue( var p[w+m] : int; var isMale : bool )returns newArray[w+m] : int
+	procedure shrinkMQueue( var p[m] : int)returns newArray[m] : int
 		var temp : int := p[1]
 		fa  i := 1 to m ->
-			if(i < 10) ->
+			if(i < m) ->
 				newArray[i] := p[i+1];
-			[] (i = 10) ->
+			[] (i = m) ->
 				newArray[i] := temp
 			fi
 		af	
-			if (isMale = true) ->
-				currentMQueue--
-			[] (isMale = false) ->
-				currentFQueue--
+	end
+	
+	procedure shrinkFQueue(var p[w] : int) returns newArray[w] : int
+		var temp : int := p[1]
+		fa	i := 1 to w ->
+			if(i < w)->
+				newArray[i] := p[i+1];
+			[](i = w)->
+				newArray[i] := temp
 			fi
+		af
 	end
 	
 	procedure addToQueue(  var pid : int; var isMale : bool )
@@ -125,7 +129,7 @@ resource UBprob()
 				ncm++
 				nm--
 				
-				maleQueue := shrinkQueue(maleQueue,q)
+				maleQueue := shrinkMQueue(maleQueue)
 				signal() #Stuff again?	
 				
 				write("Man goes out and left", nm)
@@ -187,7 +191,7 @@ resource UBprob()
 				ncw++
 				nw--
 				
-				femQueue := shrinkQueue(femQueue,q)
+				femQueue := shrinkFQueue(femQueue)
 				signal()
 				
 				write("Female goes out and no left", nw)
